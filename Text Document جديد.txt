@@ -1,0 +1,92 @@
+@startuml
+
+class Card {
+  - number: str
+  - password: str
+}
+
+class TransactionInfo {
+  - id: int
+  - timestamp: datetime
+  - type: str
+  - amount: Optional[float]
+}
+
+class Account {
+  - account_number: str
+  - _balance: float
+  - _card: Card
+  - _transactions: List<TransactionInfo>
+  + balance: float
+  + link_card(card: Card): void
+  + has_card(card_number: str, password: str): bool
+  + add_transaction(transaction: TransactionInfo): void
+  + get_transactions(): List<TransactionInfo>
+}
+
+class Customer {
+  - name: str
+  - address: str
+  - phone: str
+  - email: str
+  - _accounts: List<Account>
+  + add_account(account: Account): void
+  + find_account(card_number: str, password: str): Account
+}
+
+class Bank {
+  - name: str
+  - swift_code: str
+  - _customers: List<Customer>
+  + add_customer(customer: Customer): void
+  + authenticate(card_number: str, password: str): Account
+}
+
+class Display {
+  + show(message: str): void
+  + clear(): void
+}
+
+class Input {
+  + read(prompt: str): str
+}
+
+abstract class Transaction {
+  - info: TransactionInfo
+  + execute(account: Account): bool
+}
+
+class Withdraw {
+  + execute(account: Account): bool
+}
+
+class Deposit {
+  + execute(account: Account): bool
+}
+
+class Balance {
+  + execute(account: Account): bool
+}
+
+class ATMController {
+  - bank: Bank
+  - location: str
+  - display: Display
+  - input: Input
+  + run(): void
+}
+
+Transaction <|-- Withdraw
+Transaction <|-- Deposit
+Transaction <|-- Balance
+
+Account "1" *-- "0..1" Card
+Account "1" *-- "0..*" TransactionInfo
+Customer "1" *-- "0..*" Account
+Bank "1" *-- "0..*" Customer
+
+ATMController "1" o-- "1" Bank
+ATMController "1" o-- "1" Display
+ATMController "1" o-- "1" Input
+
+@enduml
